@@ -1,10 +1,10 @@
 {
-  "name": "frontend",
+  "name": "hardware-hub",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -14,7 +14,9 @@
     "next": "15.5.25",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "zod": "^4.5.4"
+    "react-icons": "^5.7.0",
+    "zod": "^4.5.4",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
