@@ -4,4 +4,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
 }
 
+.bg-grid {
+  background-image: radial-gradient(rgba(2, 132, 199, 0.15) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.dark .bg-grid {
+  background-image: radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
