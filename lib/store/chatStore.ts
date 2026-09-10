@@ -9,7 +9,6 @@ interface ChatMessage {
 
 interface ChatState {
   isOpen: boolean;
-  sessionId: string | null;
   symptomId: string | null;
   answerPath: string[];
   step: ChatStep | null;
@@ -26,7 +25,6 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set, get) => ({
   isOpen: false,
-  sessionId: null,
   symptomId: null,
   answerPath: [],
   step: null,
@@ -36,15 +34,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
-  reset: () =>
-    set({
-      sessionId: null,
-      symptomId: null,
-      answerPath: [],
-      step: null,
-      messages: [],
-      error: null,
-    }),
+  reset: () => set({ symptomId: null, answerPath: [], step: null, messages: [], error: null }),
 
   sendQuery: async (query: string) => {
     set((s) => ({
@@ -56,7 +46,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const step = await startChat(query);
       set((s) => ({
         step,
-        sessionId: step.session_id,
         symptomId: step.symptom_id ?? null,
         answerPath: [],
         isLoading: false,
@@ -68,8 +57,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   chooseOption: async (option: string) => {
-    const { sessionId, symptomId, answerPath } = get();
-    if (!sessionId || !symptomId) return;
+    const { symptomId, answerPath } = get();
+    if (!symptomId) return;
     const nextPath = [...answerPath, option];
     set((s) => ({
       isLoading: true,
@@ -77,7 +66,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       messages: [...s.messages, { role: "user", text: option }],
     }));
     try {
-      const step = await answerChat(sessionId, symptomId, nextPath);
+      const step = await answerChat(symptomId, nextPath);
       set((s) => ({
         step,
         answerPath: nextPath,

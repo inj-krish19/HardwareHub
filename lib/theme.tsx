@@ -7,18 +7,17 @@ type Theme = "light" | "dark";
 const ThemeContext = createContext<{ theme: Theme; toggle: () => void } | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+    // Read the class the inline script (in layout.tsx <head>) already applied
+    // before hydration, so this never fights with what's actually on <html>.
     const [theme, setTheme] = useState<Theme>("light");
 
     useEffect(() => {
-        const stored = window.localStorage.getItem("hh-theme") as Theme | null;
-        const initial =
-            stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        setTheme(initial);
+        setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
     }, []);
 
     useEffect(() => {
         document.documentElement.classList.toggle("dark", theme === "dark");
-        window.localStorage.setItem("hh-theme", theme);
+        window.localStorage.setItem("theme", theme);
     }, [theme]);
 
     return (

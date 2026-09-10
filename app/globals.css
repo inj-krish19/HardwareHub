@@ -3,3 +3,5 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
