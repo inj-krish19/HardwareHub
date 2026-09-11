@@ -11,9 +11,15 @@ export const chatAnswerSchema = z.object({
 });
 export type ChatAnswerInput = z.infer<typeof chatAnswerSchema>;
 
+export const chatConfirmSchema = z.object({
+  symptom_id: z.uuid(),
+  confirmed: z.boolean(),
+});
+export type ChatConfirmInput = z.infer<typeof chatConfirmSchema>;
+
 export const chatStepSchema = z.object({
   symptom_id: z.uuid().nullable().optional(),
-  kind: z.enum(["question", "conclusion", "escalate", "clarify"]),
+  kind: z.enum(["question", "conclusion", "escalate", "clarify", "clarify_bot_choice", "clarify_list", "confirm", "not_found"]),
   message: z.string(),
   node_id: z.string().nullable().optional(),
   options: z.array(z.string()).nullable().optional(),

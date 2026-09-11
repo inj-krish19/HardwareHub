@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { FiLogOut, FiCpu, FiGrid, FiDatabase, FiTag, FiBox, FiFileText } from "react-icons/fi";
+import { FiLogOut, FiCpu, FiGrid, FiDatabase, FiTag, FiBox, FiFileText, FiSearch } from "react-icons/fi";
 import { getAdminCreds, clearAdminCreds } from "@/lib/adminAuth";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import Link from "next/link";
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: FiGrid },
     { href: "/admin/seed", label: "Seed", icon: FiDatabase },
+    { href: "/admin/symptoms", label: "Keywords", icon: FiSearch },
     { href: "/admin/categories", label: "Categories", icon: FiTag },
     { href: "/admin/products", label: "Products", icon: FiBox },
     { href: "/admin/blog", label: "Blog", icon: FiFileText },

@@ -30,3 +30,11 @@ export async function answerChat(symptomId: string, answerPath: string[]): Promi
   });
   return chatStepSchema.parse(data);
 }
+
+export async function confirmChat(symptomId: string, confirmed: boolean): Promise<ChatStep> {
+  const data = await post<unknown>("/chat/confirm", {
+    symptom_id: symptomId,
+    confirmed,
+  });
+  return chatStepSchema.parse(data);
+}

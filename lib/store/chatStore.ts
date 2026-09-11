@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { answerChat, startChat } from "@/lib/api";
+import { answerChat, confirmChat, startChat } from "@/lib/api";
 import type { ChatStep } from "@/lib/validations/chat";
 
 interface ChatMessage {
@@ -20,6 +20,7 @@ interface ChatState {
   close: () => void;
   reset: () => void;
   sendQuery: (query: string) => Promise<void>;
+  confirmMatch: (confirmed: boolean) => Promise<void>;
   chooseOption: (option: string) => Promise<void>;
 }
 
@@ -47,6 +48,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set((s) => ({
         step,
         symptomId: step.symptom_id ?? null,
+        answerPath: [],
+        isLoading: false,
+        messages: [...s.messages, { role: "bot", text: step.message }],
+      }));
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message });
+    }
+  },
+
+  confirmMatch: async (confirmed: boolean) => {
+    const { symptomId } = get();
+    if (!symptomId) return;
+    set((s) => ({
+      isLoading: true,
+      error: null,
+      messages: [...s.messages, { role: "user", text: confirmed ? "Yes, that's it" : "No, that's not it" }],
+    }));
+    try {
+      const step = await confirmChat(symptomId, confirmed);
+      set((s) => ({
+        step,
         answerPath: [],
         isLoading: false,
         messages: [...s.messages, { role: "bot", text: step.message }],
