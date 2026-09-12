@@ -17,6 +17,8 @@ export default function ChatWidget() {
         sendQuery,
         chooseOption,
         confirmMatch,
+        chooseBot,
+        chooseSymptom,
         reset,
     } = useChatStore();
     const [input, setInput] = useState("");
@@ -110,7 +112,7 @@ export default function ChatWidget() {
                         className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
                     >
                         <div
-                            className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${m.role === "user"
+                            className={`max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${m.role === "user"
                                 ? "bg-sky-600 text-white rounded-br-xs"
                                 : "bg-slate-100 text-slate-800 dark:bg-slate-800/80 dark:text-slate-100 rounded-bl-xs border border-slate-200/50 dark:border-slate-700/50"
                                 }`}
@@ -163,10 +165,7 @@ export default function ChatWidget() {
                                 <button
                                     key={opt}
                                     disabled={isLoading}
-                                    onClick={() => {
-                                        // Sends the selected bot choice query directly to hit the backend bot-selection/start endpoint
-                                        sendQuery(opt);
-                                    }}
+                                    onClick={() => chooseBot(opt)}
                                     className="w-full text-left rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-700 transition-all hover:border-sky-500 hover:bg-sky-50/50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 cursor-pointer shadow-2xs"
                                 >
                                     {opt}
@@ -185,10 +184,7 @@ export default function ChatWidget() {
                                 <button
                                     key={opt}
                                     disabled={isLoading}
-                                    onClick={() => {
-                                        // Automatically fires the selection as a chat message and transitions to QnA tree flow
-                                        sendQuery(opt);
-                                    }}
+                                    onClick={() => chooseSymptom(opt)}
                                     className="w-full text-left rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-700 transition-all hover:border-sky-500 hover:bg-sky-50/50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 cursor-pointer shadow-2xs"
                                 >
                                     {opt}

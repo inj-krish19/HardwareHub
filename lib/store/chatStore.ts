@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { answerChat, confirmChat, startChat } from "@/lib/api";
+import { answerChat, confirmChat, selectBot, selectSymptomTitle, startChat } from "@/lib/api";
 import type { ChatStep } from "@/lib/validations/chat";
 
 interface ChatMessage {
@@ -22,6 +22,32 @@ interface ChatState {
   sendQuery: (query: string) => Promise<void>;
   confirmMatch: (confirmed: boolean) => Promise<void>;
   chooseOption: (option: string) => Promise<void>;
+  chooseBot: (botChoice: string) => Promise<void>;
+  chooseSymptom: (title: string) => Promise<void>;
+}
+
+async function runStep(
+  set: (partial: Partial<ChatState> | ((s: ChatState) => Partial<ChatState>)) => void,
+  userText: string,
+  call: () => Promise<ChatStep>
+) {
+  set((s) => ({
+    isLoading: true,
+    error: null,
+    messages: [...s.messages, { role: "user", text: userText }],
+  }));
+  try {
+    const step = await call();
+    set((s) => ({
+      step,
+      symptomId: step.symptom_id ?? s.symptomId,
+      answerPath: [],
+      isLoading: false,
+      messages: [...s.messages, { role: "bot", text: step.message }],
+    }));
+  } catch (err) {
+    set({ isLoading: false, error: (err as Error).message });
+  }
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -37,46 +63,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
   close: () => set({ isOpen: false }),
   reset: () => set({ symptomId: null, answerPath: [], step: null, messages: [], error: null }),
 
-  sendQuery: async (query: string) => {
-    set((s) => ({
-      isLoading: true,
-      error: null,
-      messages: [...s.messages, { role: "user", text: query }],
-    }));
-    try {
-      const step = await startChat(query);
-      set((s) => ({
-        step,
-        symptomId: step.symptom_id ?? null,
-        answerPath: [],
-        isLoading: false,
-        messages: [...s.messages, { role: "bot", text: step.message }],
-      }));
-    } catch (err) {
-      set({ isLoading: false, error: (err as Error).message });
-    }
-  },
+  sendQuery: (query: string) => runStep(set, query, () => startChat(query)),
 
   confirmMatch: async (confirmed: boolean) => {
     const { symptomId } = get();
     if (!symptomId) return;
-    set((s) => ({
-      isLoading: true,
-      error: null,
-      messages: [...s.messages, { role: "user", text: confirmed ? "Yes, that's it" : "No, that's not it" }],
-    }));
-    try {
-      const step = await confirmChat(symptomId, confirmed);
-      set((s) => ({
-        step,
-        answerPath: [],
-        isLoading: false,
-        messages: [...s.messages, { role: "bot", text: step.message }],
-      }));
-    } catch (err) {
-      set({ isLoading: false, error: (err as Error).message });
-    }
+    await runStep(
+      set,
+      confirmed ? "Yes, that's it" : "No, that's not it",
+      () => confirmChat(symptomId, confirmed)
+    );
   },
+
+  chooseBot: (botChoice: string) => runStep(set, botChoice, () => selectBot(botChoice)),
+
+  chooseSymptom: (title: string) => runStep(set, title, () => selectSymptomTitle(title)),
 
   chooseOption: async (option: string) => {
     const { symptomId, answerPath } = get();

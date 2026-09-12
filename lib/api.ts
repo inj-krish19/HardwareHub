@@ -38,3 +38,13 @@ export async function confirmChat(symptomId: string, confirmed: boolean): Promis
   });
   return chatStepSchema.parse(data);
 }
+
+export async function selectBot(botChoice: string): Promise<ChatStep> {
+  const data = await post<unknown>("/chat/bot-selection", { bot_choice: botChoice });
+  return chatStepSchema.parse(data);
+}
+
+export async function selectSymptomTitle(title: string): Promise<ChatStep> {
+  const data = await post<unknown>("/chat/symptom-selection", { title });
+  return chatStepSchema.parse(data);
+}
