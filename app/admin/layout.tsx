@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {navItems.map((item) => {
                         const active = pathname === item.href;
                         return (
-                            <a
+                            <Link
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${active
@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             >
                                 <item.icon size={13} />
                                 {item.label}
-                            </a>
+                            </Link>
                         );
                     })}
                 </nav>

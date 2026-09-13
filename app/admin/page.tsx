@@ -1,5 +1,6 @@
 import { FiDatabase, FiTag, FiBox, FiFileText, FiGrid } from "react-icons/fi";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import Link from "next/link";
 
 const cards = [
     { href: "/admin/seed", icon: FiDatabase, title: "Seed diagnostics", body: "Paste a generated symptom JSON array to bulk-load diagnostic trees." },
@@ -14,7 +15,7 @@ export default function AdminDashboard() {
             <AdminPageHeader icon={FiGrid} title="Dashboard" subtitle="Content management for Hardware Hub." />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {cards.map((c) => (
-                    <a
+                    <Link
                         key={c.href}
                         href={c.href}
                         className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/40 dark:hover:border-sky-600"
@@ -28,7 +29,7 @@ export default function AdminDashboard() {
                         <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                             {c.body}
                         </p>
-                    </a>
+                    </Link>
                 ))}
             </div>
         </div>

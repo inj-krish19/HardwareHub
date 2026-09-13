@@ -132,18 +132,18 @@ export default function HomePage() {
           Hardware Hub
         </Link>
         <nav className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 sm:gap-6">
-          <a
+          <Link
             href="/products"
             className="hidden items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100 sm:flex"
           >
             <FiBookOpen size={14} /> Catalog
-          </a>
-          <a
+          </Link>
+          <Link
             href="/compare"
             className="hidden items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100 sm:flex"
           >
             <FiBarChart2 size={14} /> Compare
-          </a>
+          </Link>
           <ThemeToggle />
         </nav>
       </header>
@@ -306,7 +306,7 @@ export default function HomePage() {
       <section className="mx-auto mt-20 max-w-5xl px-4 sm:px-6 sm:mt-24">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {pillars.map((p) => (
-            <a
+            <Link
               key={p.title}
               href={p.href}
               className="group rounded-xl border border-slate-200 p-6 transition hover:border-sky-400 dark:border-slate-800 dark:hover:border-sky-500"
@@ -321,7 +321,7 @@ export default function HomePage() {
               <span className="mt-3 inline-block text-xs font-medium text-sky-600 group-hover:underline dark:text-sky-400">
                 {p.cta} →
               </span>
-            </a>
+            </Link>
           ))}
         </div>
       </section>
