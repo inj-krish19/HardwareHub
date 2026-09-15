@@ -48,3 +48,16 @@ export async function selectSymptomTitle(title: string): Promise<ChatStep> {
   const data = await post<unknown>("/chat/symptom-selection", { title });
   return chatStepSchema.parse(data);
 }
+
+export async function selectBudgetTask(taskType: string): Promise<ChatStep> {
+  const data = await post<unknown>("/chat/budget-task-selection", { task_type: taskType });
+  return chatStepSchema.parse(data);
+}
+
+export async function getBudgetRecommendation(taskType: string, budgetAmount: number): Promise<ChatStep> {
+  const data = await post<unknown>("/chat/budget-amount", {
+    task_type: taskType,
+    budget_amount: budgetAmount,
+  });
+  return chatStepSchema.parse(data);
+}

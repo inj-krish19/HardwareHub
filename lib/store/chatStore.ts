@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import { answerChat, confirmChat, selectBot, selectSymptomTitle, startChat } from "@/lib/api";
+import {
+  answerChat,
+  confirmChat,
+  getBudgetRecommendation,
+  selectBot,
+  selectBudgetTask,
+  selectSymptomTitle,
+  startChat,
+} from "@/lib/api";
 import type { ChatStep } from "@/lib/validations/chat";
 
 interface ChatMessage {
@@ -10,6 +18,7 @@ interface ChatMessage {
 interface ChatState {
   isOpen: boolean;
   symptomId: string | null;
+  taskType: string | null;
   answerPath: string[];
   step: ChatStep | null;
   messages: ChatMessage[];
@@ -24,6 +33,8 @@ interface ChatState {
   chooseOption: (option: string) => Promise<void>;
   chooseBot: (botChoice: string) => Promise<void>;
   chooseSymptom: (title: string) => Promise<void>;
+  chooseBudgetTask: (taskType: string) => Promise<void>;
+  submitBudgetAmount: (amount: number) => Promise<void>;
 }
 
 async function runStep(
@@ -41,6 +52,7 @@ async function runStep(
     set((s) => ({
       step,
       symptomId: step.symptom_id ?? s.symptomId,
+      taskType: step.task_type ?? s.taskType,
       answerPath: [],
       isLoading: false,
       messages: [...s.messages, { role: "bot", text: step.message }],
@@ -53,6 +65,7 @@ async function runStep(
 export const useChatStore = create<ChatState>((set, get) => ({
   isOpen: false,
   symptomId: null,
+  taskType: null,
   answerPath: [],
   step: null,
   messages: [],
@@ -61,7 +74,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
-  reset: () => set({ symptomId: null, answerPath: [], step: null, messages: [], error: null }),
+  reset: () =>
+    set({ symptomId: null, taskType: null, answerPath: [], step: null, messages: [], error: null }),
 
   sendQuery: (query: string) => runStep(set, query, () => startChat(query)),
 
@@ -78,6 +92,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   chooseBot: (botChoice: string) => runStep(set, botChoice, () => selectBot(botChoice)),
 
   chooseSymptom: (title: string) => runStep(set, title, () => selectSymptomTitle(title)),
+
+  chooseBudgetTask: (taskType: string) => runStep(set, taskType, () => selectBudgetTask(taskType)),
+
+  submitBudgetAmount: async (amount: number) => {
+    const { taskType } = get();
+    if (!taskType) return;
+    await runStep(set, `₹${amount.toLocaleString()}`, () => getBudgetRecommendation(taskType, amount));
+  },
 
   chooseOption: async (option: string) => {
     const { symptomId, answerPath } = get();
