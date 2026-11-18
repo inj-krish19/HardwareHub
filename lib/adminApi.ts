@@ -49,6 +49,12 @@ export async function uploadSymptomSeed(entries: unknown[]): Promise<{ created: 
   return adminRequest("POST", "/admin/seed/symptoms", entries);
 }
 
+export async function uploadProductSeed(
+  entries: unknown[]
+): Promise<{ created: number; skipped: number }> {
+  return adminRequest("POST", "/admin/seed/products", entries);
+}
+
 export async function createCategory(payload: {
   name: string;
   description?: string;
