@@ -11,6 +11,8 @@ export interface CatalogProduct {
     model_number: string;
     specs: Record<string, string>;
     use_case_tags: string | null;
+    image_url: string | null;
+    video_url: string | null;
 }
 
 export interface BlogPost {
@@ -67,3 +69,63 @@ export const COMMON_ISSUES: Record<string, string[]> = {
     ],
     Storage: ["Storage drive not detected", "Storage is very slow", "Drive reported as dying"],
 };
+
+// ---- media + links helpers ----
+
+/** Turns a YouTube watch/short/embed URL into an embeddable one, or null. */
+export function youtubeEmbed(url: string | null): string | null {
+    if (!url) return null;
+    const m =
+        url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+    return m ? `https://www.youtube-nocookie.com/embed/${m[1]}` : null;
+}
+
+/** "https://www.amazon.in/..." -> "Amazon". Used as the button label. */
+export function storeLabel(url: string): string {
+    try {
+        const host = new URL(url).hostname.replace(/^www\./, "");
+        const name = host.split(".")[0];
+        return name.charAt(0).toUpperCase() + name.slice(1);
+    } catch {
+        return "Store";
+    }
+}
+
+export function parseLinks(raw: string | null): string[] {
+    return (raw ?? "")
+        .split(",")
+        .map((l) => l.trim())
+        .filter((l) => /^https?:\/\//.test(l));
+}
+
+// ---- similar products ----
+
+const REASON_KEYS = ["Socket", "Type", "Interface", "Capacity"];
+
+export interface SimilarProduct {
+    product: CatalogProduct;
+    reason: string;
+}
+
+/** Same-category products ranked by shared use-case tags and matching key specs. */
+export function similarProducts(current: CatalogProduct, all: CatalogProduct[], limit = 3): SimilarProduct[] {
+    const tags = new Set(splitTags(current.use_case_tags));
+    return all
+        .filter((p) => p.id !== current.id && p.category_name === current.category_name)
+        .map((p) => {
+            const shared = splitTags(p.use_case_tags).filter((t) => tags.has(t));
+            let score = shared.length * 2;
+            const reasons: string[] = [];
+            for (const key of REASON_KEYS) {
+                if (current.specs[key] && current.specs[key] === p.specs[key]) {
+                    score += 2;
+                    reasons.push(`Same ${key.toLowerCase()}: ${p.specs[key]}`);
+                }
+            }
+            if (shared.length) reasons.push(`Also suited to ${shared.slice(0, 2).join(" and ")}`);
+            return { product: p, score, reason: reasons[0] ?? "Same category" };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(({ product, reason }) => ({ product, reason }));
+}

@@ -55,6 +55,12 @@ export async function uploadProductSeed(
   return adminRequest("POST", "/admin/seed/products", entries);
 }
 
+export async function uploadMediaSeed(
+  entries: unknown[]
+): Promise<{ updated: number; not_found: string[]; no_blog_post: string[] }> {
+  return adminRequest("POST", "/admin/seed/media", entries);
+}
+
 export async function createCategory(payload: {
   name: string;
   description?: string;
