@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { FiUploadCloud, FiDatabase } from "react-icons/fi";
-import { uploadProductSeed, uploadSymptomSeed } from "@/lib/adminApi";
+import { uploadMediaSeed, uploadProductSeed, uploadSymptomSeed } from "@/lib/adminApi";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminCard from "@/components/admin/AdminCard";
 import { textareaClass } from "@/components/admin/Field";
 
-type Mode = "guides" | "products";
+type Mode = "guides" | "products" | "media";
 
 const MODES: Record<Mode, { label: string; hint: string; placeholder: string }> = {
     guides: {
@@ -19,6 +19,11 @@ const MODES: Record<Mode, { label: string; hint: string; placeholder: string }> 
         label: "Products + blog",
         hint: "JSON array of products: category, name, model_number, specs, use_case_tags, blog. Categories are created if missing; re-pasting skips duplicates.",
         placeholder: '[ { "category": "RAM", "name": "...", "model_number": "...", "specs": { }, "blog": { "content": "..." } } ]',
+    },
+    media: {
+        label: "Images, video & links",
+        hint: "JSON array matched by model_number: image_url, video_url (YouTube), buy_links (comma-separated store URLs). Empty fields are left unchanged.",
+        placeholder: '[ { "model_number": "100-100000927BOX", "image_url": "https://...", "video_url": "https://youtu.be/...", "buy_links": "https://..." } ]',
     },
 };
 
@@ -46,9 +51,16 @@ export default function AdminSeedPage() {
             if (mode === "guides") {
                 const result = await uploadSymptomSeed(parsed);
                 setStatus(`Created ${result.created} guides.`);
-            } else {
+            } else if (mode === "products") {
                 const result = await uploadProductSeed(parsed);
                 setStatus(`Created ${result.created} products, skipped ${result.skipped} duplicates.`);
+            } else {
+                const result = await uploadMediaSeed(parsed);
+                const notes = [
+                    result.not_found.length ? `Not found: ${result.not_found.join(", ")}.` : "",
+                    result.no_blog_post.length ? `No blog post to hold links: ${result.no_blog_post.join(", ")}.` : "",
+                ].filter(Boolean);
+                setStatus(`Updated ${result.updated} products. ${notes.join(" ")}`.trim());
             }
             setRaw("");
         } catch (err) {
