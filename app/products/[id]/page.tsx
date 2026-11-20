@@ -11,10 +11,8 @@ import {
     COMMON_ISSUES,
     getProduct,
     getProducts,
-    parseLinks,
     similarProducts,
     splitTags,
-    storeLabel,
     youtubeEmbed,
 } from "@/lib/catalog";
 import { SPEC_GLOSSARY } from "@/lib/glossary";
@@ -42,7 +40,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     if (!product) notFound();
 
     const post = product.blog_posts[0];
-    const links = parseLinks(post?.buy_links ?? null);
+    const links = product.buy_links ?? [];
+    const primary = links[0]; // position 0 drives the Check price button
     const embed = youtubeEmbed(product.video_url);
     const similar = similarProducts(product, all);
     const tags = splitTags(product.use_case_tags);
@@ -113,9 +112,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                             >
                                 <FiBarChart2 size={14} /> Compare
                             </Link>
-                            {links[0] && (
+                            {primary && (
                                 <a
-                                    href={links[0]}
+                                    href={primary.url}
                                     target="_blank"
                                     rel="noopener noreferrer sponsored"
                                     className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-500"
@@ -195,13 +194,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                         <div className="mt-3 flex flex-wrap gap-2">
                             {links.map((l) => (
                                 <a
-                                    key={l}
-                                    href={l}
+                                    key={l.url}
+                                    href={l.url}
                                     target="_blank"
                                     rel="noopener noreferrer sponsored"
                                     className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-700 hover:border-sky-400 hover:text-sky-600 dark:border-slate-700 dark:text-slate-300 dark:hover:text-sky-400"
                                 >
-                                    <FiExternalLink size={14} /> {storeLabel(l)}
+                                    <FiExternalLink size={14} /> {l.store}
                                 </a>
                             ))}
                         </div>

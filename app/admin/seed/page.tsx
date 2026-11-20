@@ -17,13 +17,13 @@ const MODES: Record<Mode, { label: string; hint: string; placeholder: string }> 
     },
     products: {
         label: "Products + blog",
-        hint: "JSON array of products: category, name, model_number, specs, use_case_tags, blog. Categories are created if missing; re-pasting skips duplicates.",
-        placeholder: '[ { "category": "RAM", "name": "...", "model_number": "...", "specs": { }, "blog": { "content": "..." } } ]',
+        hint: "JSON array of products: category, name, model_number, specs, use_case_tags, blog, and buy_links (1 to 3 store links; the first is the Check price link). Categories are created if missing; re-pasting skips duplicates.",
+        placeholder: '[ { "category": "RAM", "name": "...", "model_number": "...", "specs": { }, "buy_links": [ { "store": "Amazon", "url": "https://..." } ], "blog": { "content": "..." } } ]',
     },
     media: {
         label: "Images, video & links",
-        hint: "JSON array matched by model_number: image_url, video_url (YouTube), buy_links (comma-separated store URLs). Empty fields are left unchanged.",
-        placeholder: '[ { "model_number": "100-100000927BOX", "image_url": "https://...", "video_url": "https://youtu.be/...", "buy_links": "https://..." } ]',
+        hint: "JSON array matched by model_number: image_url, video_url (YouTube), and buy_links: 1 to 3 items, each a URL or {store, url}. The first is the Check price link. buy_links replaces the existing links; empty fields are left unchanged.",
+        placeholder: '[ { "model_number": "100-100000927BOX", "image_url": "https://...", "video_url": "https://youtu.be/...", "buy_links": [ { "store": "Amazon", "url": "https://..." } ] } ]',
     },
 };
 
@@ -53,12 +53,18 @@ export default function AdminSeedPage() {
                 setStatus(`Created ${result.created} guides.`);
             } else if (mode === "products") {
                 const result = await uploadProductSeed(parsed);
-                setStatus(`Created ${result.created} products, skipped ${result.skipped} duplicates.`);
+                const bad = result.invalid.map((i) => `${i.name} (${i.reason})`);
+                setStatus(
+                    `Created ${result.created} products, skipped ${result.skipped} duplicates.` +
+                    (bad.length ? ` Not imported: ${bad.join("; ")}.` : "")
+                );
             } else {
                 const result = await uploadMediaSeed(parsed);
                 const notes = [
                     result.not_found.length ? `Not found: ${result.not_found.join(", ")}.` : "",
-                    result.no_blog_post.length ? `No blog post to hold links: ${result.no_blog_post.join(", ")}.` : "",
+                    result.invalid.length
+                        ? `Not updated: ${result.invalid.map((i) => `${i.model_number} (${i.reason})`).join("; ")}.`
+                        : "",
                 ].filter(Boolean);
                 setStatus(`Updated ${result.updated} products. ${notes.join(" ")}`.trim());
             }
