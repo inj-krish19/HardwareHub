@@ -51,13 +51,13 @@ export async function uploadSymptomSeed(entries: unknown[]): Promise<{ created: 
 
 export async function uploadProductSeed(
   entries: unknown[]
-): Promise<{ created: number; skipped: number }> {
+): Promise<{ created: number; skipped: number; invalid: { name: string; reason: string }[] }> {
   return adminRequest("POST", "/admin/seed/products", entries);
 }
 
 export async function uploadMediaSeed(
   entries: unknown[]
-): Promise<{ updated: number; not_found: string[]; no_blog_post: string[] }> {
+): Promise<{ updated: number; not_found: string[]; invalid: { model_number: string; reason: string }[] }> {
   return adminRequest("POST", "/admin/seed/media", entries);
 }
 

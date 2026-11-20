@@ -22,8 +22,15 @@ export interface BlogPost {
     buy_links: string | null;
 }
 
+export interface BuyLink {
+    position: number; // 0 is the primary "Check price" link
+    store: string;
+    url: string;
+}
+
 export interface ProductDetail extends CatalogProduct {
     blog_posts: BlogPost[];
+    buy_links: BuyLink[]; // 0 to 3, ordered by position
 }
 
 export interface CatalogCategory {
