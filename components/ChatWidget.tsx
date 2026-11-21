@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiMessageCircle, FiSend, FiX, FiRefreshCw, FiCpu, FiMaximize2, FiMinimize2, FiLayers, FiCompass } from "react-icons/fi";
+import { FiMessageCircle, FiSend, FiX, FiRefreshCw, FiCpu, FiMaximize2, FiMinimize2, FiLayers, FiCompass, FiThumbsUp, FiThumbsDown } from "react-icons/fi";
 import { useChatStore } from "@/lib/store/chatStore";
 import { chatStartSchema } from "@/lib/validations/chat";
 
@@ -19,12 +19,11 @@ export default function ChatWidget() {
         confirmMatch,
         chooseBot,
         chooseSymptom,
-        chooseBudgetTask,
-        submitBudgetAmount,
+        rateAnswer,
+        rated,
         reset,
     } = useChatStore();
     const [input, setInput] = useState("");
-    const [budgetInput, setBudgetInput] = useState("");
     const [isExpanded, setIsExpanded] = useState(false);
 
     function handleSubmit(e: React.FormEvent) {
@@ -33,14 +32,6 @@ export default function ChatWidget() {
         if (!parsed.success) return;
         sendQuery(parsed.data.query);
         setInput("");
-    }
-
-    function handleBudgetSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        const amount = Number(budgetInput);
-        if (!Number.isInteger(amount) || amount <= 0) return;
-        submitBudgetAmount(amount);
-        setBudgetInput("");
     }
 
     if (!isOpen) {
@@ -54,6 +45,10 @@ export default function ChatWidget() {
             </button>
         );
     }
+
+    // Final answers of a real guide can be rated (conclusion or escalate, with a guide id).
+    const isFinalAnswer =
+        (step?.kind === "conclusion" || step?.kind === "escalate") && Boolean(step.symptom_id);
 
     return (
         <div
@@ -203,45 +198,6 @@ export default function ChatWidget() {
                             ))}
                         </div>
                     </div>
-                ) : step?.kind === "clarify_budget_task" && step.options ? (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                            <FiLayers size={13} className="text-sky-600 dark:text-sky-400" />
-                            <span>What will this PC mainly be used for?</span>
-                        </div>
-                        <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
-                            {step.options.map((opt) => (
-                                <button
-                                    key={opt}
-                                    disabled={isLoading}
-                                    onClick={() => chooseBudgetTask(opt)}
-                                    className="w-full text-left rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-700 transition-all hover:border-sky-500 hover:bg-sky-50/50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 cursor-pointer shadow-2xs"
-                                >
-                                    {opt}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ) : step?.kind === "budget_amount_request" ? (
-                    <form onSubmit={handleBudgetSubmit} className="flex gap-2">
-                        <input
-                            type="number"
-                            min={1}
-                            step={1}
-                            value={budgetInput}
-                            onChange={(e) => setBudgetInput(e.target.value)}
-                            placeholder="e.g. 50000"
-                            className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isLoading || !budgetInput.trim()}
-                            aria-label="Submit budget"
-                            className="flex items-center justify-center rounded-xl bg-sky-600 px-4 py-2.5 text-white shadow-sm transition-all hover:bg-sky-500 disabled:opacity-50 cursor-pointer"
-                        >
-                            <FiSend size={16} />
-                        </button>
-                    </form>
                 ) : step?.kind === "question" && step.options ? (
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap gap-2">
@@ -258,22 +214,57 @@ export default function ChatWidget() {
                         </div>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="flex gap-2">
-                        <input
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Describe your PC issue..."
-                            className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isLoading || !input.trim()}
-                            aria-label="Send message"
-                            className="flex items-center justify-center rounded-xl bg-sky-600 px-4 py-2.5 text-white shadow-sm transition-all hover:bg-sky-500 disabled:opacity-50 cursor-pointer"
-                        >
-                            <FiSend size={16} />
-                        </button>
-                    </form>
+                    <div className="flex flex-col gap-3">
+                        {isFinalAnswer && (
+                            <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3 dark:border-slate-700 dark:bg-slate-800">
+                                {step?.stats && (
+                                    <p className="mb-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                        {step.stats.helpful} of {step.stats.total} people said this{" "}
+                                        {step.kind === "conclusion" ? "fixed it" : "helped"}.
+                                    </p>
+                                )}
+                                {rated ? (
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">Thanks for the feedback.</p>
+                                ) : (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                                            {step?.kind === "conclusion" ? "Did this fix it?" : "Was this helpful?"}
+                                        </span>
+                                        <button
+                                            onClick={() => rateAnswer(true)}
+                                            className="flex items-center gap-1.5 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-500/10 cursor-pointer"
+                                        >
+                                            <FiThumbsUp size={12} />
+                                            {step?.kind === "conclusion" ? "Yes, fixed it" : "Yes"}
+                                        </button>
+                                        <button
+                                            onClick={() => rateAnswer(false)}
+                                            className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
+                                        >
+                                            <FiThumbsDown size={12} />
+                                            {step?.kind === "conclusion" ? "No, still broken" : "Not really"}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        <form onSubmit={handleSubmit} className="flex gap-2">
+                            <input
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Describe your PC issue..."
+                                className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                            />
+                            <button
+                                type="submit"
+                                disabled={isLoading || !input.trim()}
+                                aria-label="Send message"
+                                className="flex items-center justify-center rounded-xl bg-sky-600 px-4 py-2.5 text-white shadow-sm transition-all hover:bg-sky-500 disabled:opacity-50 cursor-pointer"
+                            >
+                                <FiSend size={16} />
+                            </button>
+                        </form>
+                    </div>
                 )}
             </div>
         </div>

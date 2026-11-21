@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { FiLogOut, FiCpu, FiGrid, FiDatabase, FiTag, FiBox, FiFileText, FiSearch } from "react-icons/fi";
+import { FiLogOut, FiCpu, FiGrid, FiDatabase, FiTag, FiBox, FiFileText, FiSearch, FiThumbsUp } from "react-icons/fi";
 import { getAdminCreds, clearAdminCreds } from "@/lib/adminAuth";
 import ThemeToggle from "@/components/ThemeToggle";
-import Link from "next/link";
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: FiGrid },
@@ -14,6 +13,7 @@ const navItems = [
     { href: "/admin/categories", label: "Categories", icon: FiTag },
     { href: "/admin/products", label: "Products", icon: FiBox },
     { href: "/admin/blog", label: "Blog", icon: FiFileText },
+    { href: "/admin/feedback", label: "Feedback", icon: FiThumbsUp },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -40,15 +40,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
             <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5 sm:px-6">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        <Link href="/" className="flex items-center gap-2">
-                            <FiCpu className="text-sky-600 dark:text-sky-400" size={16} />
-                            Hardware Hub
-                        </Link>
-                        <Link href="/admin" className="text-slate-400 dark:text-slate-600">
-                            / Admin
-                        </Link>
-                    </div>
+                    <span className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <FiCpu className="text-sky-600 dark:text-sky-400" size={16} />
+                        Hardware Hub <span className="text-slate-400 dark:text-slate-600">/ Admin</span>
+                    </span>
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
                         <button
@@ -66,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {navItems.map((item) => {
                         const active = pathname === item.href;
                         return (
-                            <Link
+                            <a
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${active
@@ -76,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             >
                                 <item.icon size={13} />
                                 {item.label}
-                            </Link>
+                            </a>
                         );
                     })}
                 </nav>
