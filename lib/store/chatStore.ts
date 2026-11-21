@@ -1,13 +1,5 @@
 import { create } from "zustand";
-import {
-  answerChat,
-  confirmChat,
-  getBudgetRecommendation,
-  selectBot,
-  selectBudgetTask,
-  selectSymptomTitle,
-  startChat,
-} from "@/lib/api";
+import { answerChat, confirmChat, selectBot, selectSymptomTitle, sendFeedback, startChat } from "@/lib/api";
 import type { ChatStep } from "@/lib/validations/chat";
 
 interface ChatMessage {
@@ -18,12 +10,13 @@ interface ChatMessage {
 interface ChatState {
   isOpen: boolean;
   symptomId: string | null;
-  taskType: string | null;
   answerPath: string[];
   step: ChatStep | null;
   messages: ChatMessage[];
   isLoading: boolean;
   error: string | null;
+  /** true once the person has rated the current final answer */
+  rated: boolean;
 
   open: () => void;
   close: () => void;
@@ -33,8 +26,7 @@ interface ChatState {
   chooseOption: (option: string) => Promise<void>;
   chooseBot: (botChoice: string) => Promise<void>;
   chooseSymptom: (title: string) => Promise<void>;
-  chooseBudgetTask: (taskType: string) => Promise<void>;
-  submitBudgetAmount: (amount: number) => Promise<void>;
+  rateAnswer: (helpful: boolean) => Promise<void>;
 }
 
 async function runStep(
@@ -52,8 +44,8 @@ async function runStep(
     set((s) => ({
       step,
       symptomId: step.symptom_id ?? s.symptomId,
-      taskType: step.task_type ?? s.taskType,
       answerPath: [],
+      rated: false,
       isLoading: false,
       messages: [...s.messages, { role: "bot", text: step.message }],
     }));
@@ -65,17 +57,17 @@ async function runStep(
 export const useChatStore = create<ChatState>((set, get) => ({
   isOpen: false,
   symptomId: null,
-  taskType: null,
   answerPath: [],
   step: null,
   messages: [],
   isLoading: false,
   error: null,
+  rated: false,
 
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
   reset: () =>
-    set({ symptomId: null, taskType: null, answerPath: [], step: null, messages: [], error: null }),
+    set({ symptomId: null, answerPath: [], step: null, messages: [], error: null, rated: false }),
 
   sendQuery: (query: string) => runStep(set, query, () => startChat(query)),
 
@@ -93,12 +85,26 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   chooseSymptom: (title: string) => runStep(set, title, () => selectSymptomTitle(title)),
 
-  chooseBudgetTask: (taskType: string) => runStep(set, taskType, () => selectBudgetTask(taskType)),
-
-  submitBudgetAmount: async (amount: number) => {
-    const { taskType } = get();
-    if (!taskType) return;
-    await runStep(set, `₹${amount.toLocaleString()}`, () => getBudgetRecommendation(taskType, amount));
+  rateAnswer: async (helpful: boolean) => {
+    const { symptomId, answerPath } = get();
+    if (!symptomId) return;
+    set({ rated: true }); // optimistic: a failed vote should never block the chat
+    try {
+      await sendFeedback(symptomId, answerPath, helpful);
+    } catch {
+      /* feedback is best-effort */
+    }
+    set((s) => ({
+      messages: [
+        ...s.messages,
+        {
+          role: "bot",
+          text: helpful
+            ? "Glad that helped! Your answer helps us improve this guide."
+            : "Sorry it didn't fix it. Thanks for telling us, which helps us improve this guide. You can try another question below, or take it to a technician.",
+        },
+      ],
+    }));
   },
 
   chooseOption: async (option: string) => {
@@ -115,6 +121,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set((s) => ({
         step,
         answerPath: nextPath,
+        rated: false,
         isLoading: false,
         messages: [...s.messages, { role: "bot", text: step.message }],
       }));

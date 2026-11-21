@@ -61,6 +61,17 @@ export async function uploadMediaSeed(
   return adminRequest("POST", "/admin/seed/media", entries);
 }
 
+export interface FeedbackSummary {
+  total: number;
+  helpful: number;
+  guides: { symptom_id: string; title: string; category: string; bot_type: string; total: number; helpful: number }[];
+  weak_outcomes: { title: string; outcome_key: string; kind: string; total: number; helpful: number }[];
+}
+
+export async function fetchFeedbackSummary(): Promise<FeedbackSummary> {
+  return adminRequest("GET", "/admin/feedback/summary");
+}
+
 export async function createCategory(payload: {
   name: string;
   description?: string;
