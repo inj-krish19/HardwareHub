@@ -22,7 +22,6 @@ interface ChatState {
   close: () => void;
   reset: () => void;
   sendQuery: (query: string) => Promise<void>;
-  confirmMatch: (confirmed: boolean) => Promise<void>;
   rejectSuggestions: () => Promise<void>;
   chooseOption: (option: string) => Promise<void>;
   chooseBot: (botChoice: string) => Promise<void>;
@@ -71,16 +70,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ symptomId: null, answerPath: [], step: null, messages: [], error: null, rated: false }),
 
   sendQuery: (query: string) => runStep(set, query, () => startChat(query)),
-
-  confirmMatch: async (confirmed: boolean) => {
-    const { symptomId } = get();
-    if (!symptomId) return;
-    await runStep(
-      set,
-      confirmed ? "Yes, that's it" : "No, that's not it",
-      () => confirmChat(symptomId, confirmed)
-    );
-  },
 
   // "None of these" on a suggestion list. The backend ignores which guide id is sent
   // here; it just routes the person to the bot picker.

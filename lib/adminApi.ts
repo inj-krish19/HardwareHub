@@ -45,7 +45,9 @@ export async function verifyAdminCreds(id: string, secret: string): Promise<bool
   return res.ok;
 }
 
-export async function uploadSymptomSeed(entries: unknown[]): Promise<{ created: number }> {
+export async function uploadSymptomSeed(
+  entries: unknown[]
+): Promise<{ created: number; skipped: string[] }> {
   return adminRequest("POST", "/admin/seed/symptoms", entries);
 }
 
