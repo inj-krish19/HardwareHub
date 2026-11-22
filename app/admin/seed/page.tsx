@@ -12,7 +12,7 @@ type Mode = "guides" | "products" | "media";
 const MODES: Record<Mode, { label: string; hint: string; placeholder: string }> = {
     guides: {
         label: "Guides (all bots)",
-        hint: "JSON array of guides: title, category, bot_type (optional, defaults to diagnostic), keywords, question_tree.",
+        hint: "JSON array of guides: title, category, bot_type (optional, defaults to diagnostic), keywords, question_tree. A guide whose title already exists is skipped, so re-pasting a file is safe.",
         placeholder: '[ { "title": "...", "category": "...", "bot_type": "diagnostic", "keywords": [], "question_tree": { } } ]',
     },
     products: {
@@ -50,7 +50,12 @@ export default function AdminSeedPage() {
         try {
             if (mode === "guides") {
                 const result = await uploadSymptomSeed(parsed);
-                setStatus(`Created ${result.created} guides.`);
+                setStatus(
+                    `Created ${result.created} guides.` +
+                    (result.skipped.length
+                        ? ` Skipped ${result.skipped.length} whose title already exists: ${result.skipped.join("; ")}.`
+                        : "")
+                );
             } else if (mode === "products") {
                 const result = await uploadProductSeed(parsed);
                 const bad = result.invalid.map((i) => `${i.name} (${i.reason})`);

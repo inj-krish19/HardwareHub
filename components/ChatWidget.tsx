@@ -16,7 +16,6 @@ export default function ChatWidget() {
         error,
         sendQuery,
         chooseOption,
-        confirmMatch,
         rejectSuggestions,
         chooseBot,
         chooseSymptom,
@@ -145,23 +144,7 @@ export default function ChatWidget() {
 
             {/* Interactive Options / Input Footer */}
             <div className="border-t border-slate-200 bg-slate-50/50 px-4 py-3.5 dark:border-slate-800 dark:bg-slate-900/50">
-                {step?.kind === "confirm" && step.options ? (
-                    <div className="flex flex-col gap-2">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Did you mean this issue?</p>
-                        <div className="flex flex-wrap gap-2">
-                            {step.options.map((opt) => (
-                                <button
-                                    key={opt}
-                                    disabled={isLoading}
-                                    onClick={() => confirmMatch(opt.startsWith("Yes"))}
-                                    className="rounded-xl border border-sky-300 bg-sky-50 px-4 py-2 text-xs font-medium text-sky-700 transition-all hover:bg-sky-100 disabled:opacity-50 dark:border-sky-700 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20 cursor-pointer"
-                                >
-                                    {opt}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ) : step?.kind === "suggest" && step.options ? (
+                {step?.kind === "suggest" && step.options ? (
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                             <FiLayers size={13} className="text-sky-600 dark:text-sky-400" />
