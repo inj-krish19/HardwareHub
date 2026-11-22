@@ -17,6 +17,7 @@ export default function ChatWidget() {
         sendQuery,
         chooseOption,
         confirmMatch,
+        rejectSuggestions,
         chooseBot,
         chooseSymptom,
         rateAnswer,
@@ -158,6 +159,32 @@ export default function ChatWidget() {
                                     {opt}
                                 </button>
                             ))}
+                        </div>
+                    </div>
+                ) : step?.kind === "suggest" && step.options ? (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            <FiLayers size={13} className="text-sky-600 dark:text-sky-400" />
+                            <span>Pick the closest guide:</span>
+                        </div>
+                        <div className="space-y-1.5">
+                            {step.options.map((opt) => (
+                                <button
+                                    key={opt}
+                                    disabled={isLoading}
+                                    onClick={() => chooseSymptom(opt)}
+                                    className="w-full text-left rounded-xl border border-sky-300 bg-sky-50 px-3.5 py-2.5 text-xs font-medium text-sky-800 transition-all hover:bg-sky-100 disabled:opacity-50 dark:border-sky-700 dark:bg-sky-500/10 dark:text-sky-200 dark:hover:bg-sky-500/20 cursor-pointer"
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                            <button
+                                disabled={isLoading}
+                                onClick={() => rejectSuggestions()}
+                                className="w-full text-left rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-600 transition-all hover:border-slate-400 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 cursor-pointer"
+                            >
+                                None of these
+                            </button>
                         </div>
                     </div>
                 ) : step?.kind === "clarify_bot_choice" && step.options ? (

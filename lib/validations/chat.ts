@@ -25,6 +25,7 @@ export const chatStepSchema = z.object({
     "escalate",
     "clarify",
     "confirm",
+    "suggest",
     "not_found",
     "clarify_bot_choice",
     "clarify_list",
