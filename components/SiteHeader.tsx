@@ -13,11 +13,20 @@ export default function SiteHeader() {
                 Hardware Hub
             </Link>
             <nav className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 sm:gap-6">
-                <Link href="/products" className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100">
-                    <FiBookOpen size={14} /> Catalog
+                {/* Icon-only on phones (aria-label keeps them readable to screen readers), icon + text from sm up. */}
+                <Link
+                    href="/products"
+                    aria-label="Catalog"
+                    className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100"
+                >
+                    <FiBookOpen size={16} /> <span className="hidden sm:inline">Catalog</span>
                 </Link>
-                <Link href="/compare" className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100">
-                    <FiBarChart2 size={14} /> Compare
+                <Link
+                    href="/compare"
+                    aria-label="Compare"
+                    className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100"
+                >
+                    <FiBarChart2 size={16} /> <span className="hidden sm:inline">Compare</span>
                 </Link>
                 <ThemeToggle />
             </nav>

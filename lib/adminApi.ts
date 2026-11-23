@@ -87,6 +87,8 @@ export async function createProduct(payload: {
   model_number: string;
   specs: Record<string, unknown>;
   use_case_tags?: string;
+  image_url?: string;
+  video_url?: string;
 }): Promise<{ id: string }> {
   return adminRequest("POST", "/admin/products", payload);
 }

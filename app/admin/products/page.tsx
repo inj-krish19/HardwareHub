@@ -15,6 +15,8 @@ export default function AdminProductsPage() {
     const [modelNumber, setModelNumber] = useState("");
     const [specsRaw, setSpecsRaw] = useState("{}");
     const [tags, setTags] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
+    const [videoUrl, setVideoUrl] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -52,11 +54,15 @@ export default function AdminProductsPage() {
                 model_number: modelNumber,
                 specs,
                 use_case_tags: tags || undefined,
+                image_url: imageUrl.trim() || undefined,
+                video_url: videoUrl.trim() || undefined,
             });
             setName("");
             setModelNumber("");
             setSpecsRaw("{}");
             setTags("");
+            setImageUrl("");
+            setVideoUrl("");
             await load();
         } catch (err) {
             setError((err as Error).message);
@@ -112,6 +118,22 @@ export default function AdminProductsPage() {
                         </Field>
                         <Field label="Use case tags (comma separated, optional)">
                             <input value={tags} onChange={(e) => setTags(e.target.value)} className={inputClass} />
+                        </Field>
+                        <Field label="Image link (optional)">
+                            <input
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                                placeholder="https://..."
+                                className={inputClass}
+                            />
+                        </Field>
+                        <Field label="YouTube link (optional)">
+                            <input
+                                value={videoUrl}
+                                onChange={(e) => setVideoUrl(e.target.value)}
+                                placeholder="https://youtu.be/..."
+                                className={inputClass}
+                            />
                         </Field>
                         {error && <p className="text-xs text-red-500">{error}</p>}
                         <button

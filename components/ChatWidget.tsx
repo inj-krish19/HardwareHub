@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiMessageCircle, FiSend, FiX, FiRefreshCw, FiCpu, FiMaximize2, FiMinimize2, FiLayers, FiCompass, FiThumbsUp, FiThumbsDown } from "react-icons/fi";
+import { FiMessageCircle, FiSend, FiX, FiRefreshCw, FiCpu, FiMaximize2, FiMinimize2, FiLayers, FiCompass, FiThumbsUp, FiThumbsDown, FiAlertTriangle } from "react-icons/fi";
 import { useChatStore } from "@/lib/store/chatStore";
 import { chatStartSchema } from "@/lib/validations/chat";
 
@@ -68,7 +68,7 @@ export default function ChatWidget() {
                             Diagnostic Assistant
                         </span>
                         <span className="block text-[11px] text-slate-500 dark:text-slate-400">
-                            AI-Powered PC Troubleshooting
+                            Guided PC Troubleshooting
                         </span>
                     </div>
                 </div>
@@ -95,6 +95,14 @@ export default function ChatWidget() {
                         <FiX size={18} />
                     </button>
                 </div>
+            </div>
+
+            {/* Safety line: always visible, since most fixes involve opening the case */}
+            <div className="flex items-start gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-[11px] leading-snug text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+                <FiAlertTriangle size={13} className="mt-0.5 shrink-0" />
+                <span>
+                    Safety first: switch off and unplug your PC before opening the case, and never open a power supply unit.
+                </span>
             </div>
 
             {/* Messages Area */}
@@ -132,7 +140,7 @@ export default function ChatWidget() {
                         <div className="h-2 w-2 animate-bounce rounded-full bg-sky-600 [animation-delay:-0.3s]"></div>
                         <div className="h-2 w-2 animate-bounce rounded-full bg-sky-600 [animation-delay:-0.15s]"></div>
                         <div className="h-2 w-2 animate-bounce rounded-full bg-sky-600"></div>
-                        <span className="text-xs ml-1">Analyzing issue...</span>
+                        <span className="text-xs ml-1">Finding the right guide...</span>
                     </div>
                 )}
                 {error && (

@@ -16,7 +16,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import ChatWidget from "@/components/ChatWidget";
-import ThemeToggle from "@/components/ThemeToggle";
+import SiteHeader from "@/components/SiteHeader";
 import { useChatStore } from "@/lib/store/chatStore";
 import Link from "next/link";
 
@@ -126,27 +126,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-6 sm:px-6">
-        <Link href='/' className="flex items-center gap-2 text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100 hover:scale-105 transition">
-          <FiCpu className="text-sky-600 dark:text-sky-400" size={18} />
-          Hardware Hub
-        </Link>
-        <nav className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 sm:gap-6">
-          <Link
-            href="/products"
-            className="hidden items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100 sm:flex"
-          >
-            <FiBookOpen size={14} /> Catalog
-          </Link>
-          <Link
-            href="/compare"
-            className="hidden items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100 sm:flex"
-          >
-            <FiBarChart2 size={14} /> Compare
-          </Link>
-          <ThemeToggle />
-        </nav>
-      </header>
+      <SiteHeader />
 
       {/* Hero */}
       <section className="relative isolate overflow-visible bg-grid">
@@ -327,7 +307,7 @@ export default function HomePage() {
       </section>
 
       <footer className="mx-auto mt-16 max-w-5xl px-4 py-8 text-center text-xs text-slate-400 dark:text-slate-500 sm:px-6">
-        8 free diagnostic questions a day, no account needed.
+        Free to use, no account needed.
       </footer>
 
       <ChatWidget />
