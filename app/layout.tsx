@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteUrl } from "@/lib/site";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/lib/theme";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -14,6 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Makes relative canonical links absolute. Only set when NEXT_PUBLIC_SITE_URL is configured.
+  ...(siteUrl() ? { metadataBase: new URL(siteUrl() as string) } : {}),
   title: "Hardware Hub — Diagnose, compare, and learn your PC hardware",
   description:
     "Guided hardware troubleshooting, spec comparisons, and plain-English hardware education.",

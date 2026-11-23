@@ -14,6 +14,7 @@ import {
   FiShield,
   FiGitBranch,
   FiEye,
+  FiList,
 } from "react-icons/fi";
 import ChatWidget from "@/components/ChatWidget";
 import SiteHeader from "@/components/SiteHeader";
@@ -54,6 +55,13 @@ const bots = [
 ];
 
 const pillars = [
+  {
+    icon: FiList,
+    title: "Read every guide",
+    body: "All the step-by-step guides in one place. Read a whole decision path before you open your PC.",
+    href: "/guides",
+    cta: "Browse the guides",
+  },
   {
     icon: FiBookOpen,
     title: "Learn what you own",
@@ -284,7 +292,7 @@ export default function HomePage() {
 
       {/* Beyond chat */}
       <section className="mx-auto mt-20 max-w-5xl px-4 sm:px-6 sm:mt-24">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {pillars.map((p) => (
             <Link
               key={p.title}
