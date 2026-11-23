@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FiBarChart2, FiBookOpen, FiCpu } from "react-icons/fi";
+import { FiBarChart2, FiBookOpen, FiCpu, FiList } from "react-icons/fi";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function SiteHeader() {
@@ -14,6 +14,13 @@ export default function SiteHeader() {
             </Link>
             <nav className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 sm:gap-6">
                 {/* Icon-only on phones (aria-label keeps them readable to screen readers), icon + text from sm up. */}
+                <Link
+                    href="/guides"
+                    aria-label="Guides"
+                    className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-slate-100"
+                >
+                    <FiList size={16} /> <span className="hidden sm:inline">Guides</span>
+                </Link>
                 <Link
                     href="/products"
                     aria-label="Catalog"
