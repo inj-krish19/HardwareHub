@@ -128,3 +128,51 @@ export async function fetchProducts(): Promise<Product[]> {
   if (!res.ok) throw new Error("Failed to load products.");
   return res.json();
 }
+
+// --- Unmatched queries: chat messages that matched no guide (text only, no identity) ---
+
+export type UnmatchedStatus = "open" | "fixed" | "dismissed";
+
+export interface UnmatchedQuery {
+  id: string;
+  text: string;
+  times_seen: number;
+  first_seen: string | null;
+  last_seen: string | null;
+  status: UnmatchedStatus;
+  resolved_guide: string | null;
+}
+
+export interface AdminSymptom {
+  id: string;
+  title: string;
+  category: string;
+  bot_type: string;
+}
+
+export async function fetchUnmatched(status: UnmatchedStatus): Promise<UnmatchedQuery[]> {
+  return adminRequest("GET", `/admin/unmatched?status=${status}`);
+}
+
+export async function addUnmatchedKeyword(
+  id: string,
+  symptomId: string,
+  keyword: string
+): Promise<{ guide: string; keywords: string; now_matches: boolean }> {
+  return adminRequest("POST", `/admin/unmatched/${id}/keyword`, { symptom_id: symptomId, keyword });
+}
+
+export async function setUnmatchedStatus(
+  id: string,
+  status: "open" | "dismissed"
+): Promise<{ id: string; status: string }> {
+  return adminRequest("POST", `/admin/unmatched/${id}/status`, { status });
+}
+
+export async function exportUnmatched(): Promise<{ query: string; expected: string }[]> {
+  return adminRequest("GET", "/admin/unmatched/export");
+}
+
+export async function fetchSymptoms(): Promise<AdminSymptom[]> {
+  return adminRequest("GET", "/admin/symptoms");
+}

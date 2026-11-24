@@ -1,4 +1,4 @@
-import { FiDatabase, FiTag, FiBox, FiFileText, FiGrid } from "react-icons/fi";
+import { FiDatabase, FiTag, FiBox, FiFileText, FiGrid, FiHelpCircle } from "react-icons/fi";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Link from "next/link";
 
@@ -7,6 +7,7 @@ const cards = [
     { href: "/admin/categories", icon: FiTag, title: "Categories", body: "Create product categories (RAM, Storage, PSU, ...)." },
     { href: "/admin/products", icon: FiBox, title: "Products", body: "Add a product with specs and use-case tags." },
     { href: "/admin/blog", icon: FiFileText, title: "Blog", body: "Write a blog post for a product page." },
+    { href: "/admin/unmatched", icon: FiHelpCircle, title: "Missed queries", body: "Messages that matched no guide. Turn them into keywords or new guides." },
 ];
 
 export default function AdminDashboard() {
