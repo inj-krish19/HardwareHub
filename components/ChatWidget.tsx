@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiMessageCircle, FiSend, FiX, FiRefreshCw, FiCpu, FiMaximize2, FiMinimize2, FiLayers, FiCompass, FiThumbsUp, FiThumbsDown, FiAlertTriangle } from "react-icons/fi";
+import TechnicianReport from "@/components/TechnicianReport";
 import { useChatStore } from "@/lib/store/chatStore";
 import { chatStartSchema } from "@/lib/validations/chat";
 
@@ -12,6 +13,8 @@ export default function ChatWidget() {
         close,
         messages,
         step,
+        symptomId,
+        answerPath,
         isLoading,
         error,
         sendQuery,
@@ -25,6 +28,25 @@ export default function ChatWidget() {
     } = useChatStore();
     const [input, setInput] = useState("");
     const [isExpanded, setIsExpanded] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Keep the newest message in view. A long answer is shown from its first line (so it
+    // is read from the top); a short one is shown whole at the bottom.
+    useEffect(() => {
+        const box = scrollRef.current;
+        if (!box) return;
+        const bubbles = box.querySelectorAll<HTMLElement>("[data-msg]");
+        const last = bubbles[bubbles.length - 1];
+        if (!last || isLoading) {
+            box.scrollTop = box.scrollHeight;
+            return;
+        }
+        if (last.offsetHeight > box.clientHeight - 24) {
+            box.scrollTop = last.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 12;
+        } else {
+            box.scrollTop = box.scrollHeight;
+        }
+    }, [messages.length, isLoading, isExpanded, isOpen]);
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -54,7 +76,7 @@ export default function ChatWidget() {
         <div
             className={`fixed z-50 flex flex-col overflow-hidden border border-slate-200 bg-white shadow-2xl transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${isExpanded
                 ? "inset-4 sm:inset-12 md:inset-20 max-w-4xl max-h-[85vh] rounded-3xl mx-auto my-auto"
-                : "bottom-4 right-4 h-[75vh] max-h-[580px] w-[calc(100vw-2rem)] max-w-[400px] rounded-2xl sm:bottom-6 sm:right-6"
+                : "bottom-4 right-4 h-[85vh] max-h-[680px] w-[calc(100vw-2rem)] max-w-[400px] rounded-2xl sm:bottom-6 sm:right-6"
                 }`}
         >
             {/* Header */}
@@ -106,7 +128,7 @@ export default function ChatWidget() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4 scrollbar-thin">
+            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-4 scrollbar-thin">
                 {messages.length === 0 && (
                     <div className="my-auto flex flex-col items-center justify-center py-10 text-center">
                         <div className="mb-3 rounded-full bg-sky-50 p-3 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
@@ -123,6 +145,7 @@ export default function ChatWidget() {
                 {messages.map((m, i) => (
                     <div
                         key={i}
+                        data-msg
                         className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
                     >
                         <div
@@ -232,11 +255,11 @@ export default function ChatWidget() {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
                         {isFinalAnswer && (
-                            <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3 dark:border-slate-700 dark:bg-slate-800">
+                            <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
                                 {step?.stats && (
-                                    <p className="mb-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                    <p className="mb-1.5 text-[11px] text-slate-500 dark:text-slate-400">
                                         {step.stats.helpful} of {step.stats.total} people said this{" "}
                                         {step.kind === "conclusion" ? "fixed it" : "helped"}.
                                     </p>
@@ -265,6 +288,14 @@ export default function ChatWidget() {
                                     </div>
                                 )}
                             </div>
+                        )}
+                        {step?.kind === "escalate" && isFinalAnswer && symptomId && (
+                            // key: a new final answer starts a fresh summary
+                            <TechnicianReport
+                                key={`${symptomId}:${answerPath.join(">")}`}
+                                symptomId={symptomId}
+                                answerPath={answerPath}
+                            />
                         )}
                         <form onSubmit={handleSubmit} className="flex gap-2">
                             <input
