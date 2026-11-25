@@ -1,4 +1,4 @@
-import { chatStepSchema, type ChatStep } from "@/lib/validations/chat";
+import { chatStepSchema, reportSchema, type ChatStep, type TechnicianReport } from "@/lib/validations/chat";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 if (!API_BASE) {
@@ -59,4 +59,12 @@ export async function selectBot(botChoice: string): Promise<ChatStep> {
 export async function selectSymptomTitle(title: string): Promise<ChatStep> {
   const data = await post<unknown>("/chat/symptom-selection", { title });
   return chatStepSchema.parse(data);
+}
+
+export async function fetchReport(symptomId: string, answerPath: string[]): Promise<TechnicianReport> {
+  const data = await post<unknown>("/chat/report", {
+    symptom_id: symptomId,
+    answer_path: answerPath,
+  });
+  return reportSchema.parse(data);
 }

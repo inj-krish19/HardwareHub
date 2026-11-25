@@ -35,3 +35,16 @@ export const chatStepSchema = z.object({
   stats: z.object({ helpful: z.number(), total: z.number() }).nullable().optional(),
 });
 export type ChatStep = z.infer<typeof chatStepSchema>;
+
+export const reportSchema = z.object({
+  title: z.string(),
+  category: z.string(),
+  steps: z.array(z.object({ question: z.string(), answer: z.string() })),
+  finding: z.string(),
+  // `header` (the problem) and `body` (what was checked and found) are separate so the
+  // person's own details can be slotted between them; see lib/reportText.ts.
+  header: z.string(),
+  body: z.string(),
+  text: z.string(),
+});
+export type TechnicianReport = z.infer<typeof reportSchema>;
