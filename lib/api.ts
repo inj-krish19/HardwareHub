@@ -18,8 +18,12 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function startChat(query: string): Promise<ChatStep> {
-  const data = await post<unknown>("/chat/start", { query });
+export type QuerySource = "typed" | "photo";
+
+// "photo" means the text was read from a picture on the person's own device. The server then
+// never writes it to the missed-query log (a screen can show a username or a PC name).
+export async function startChat(query: string, source: QuerySource = "typed"): Promise<ChatStep> {
+  const data = await post<unknown>("/chat/start", { query, source });
   return chatStepSchema.parse(data);
 }
 

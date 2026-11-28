@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { answerChat, confirmChat, selectBot, selectSymptomTitle, sendFeedback, startChat } from "@/lib/api";
+import { answerChat, confirmChat, selectBot, selectSymptomTitle, sendFeedback, startChat, type QuerySource } from "@/lib/api";
 import type { ChatStep } from "@/lib/validations/chat";
 
 interface ChatMessage {
@@ -21,7 +21,7 @@ interface ChatState {
   open: () => void;
   close: () => void;
   reset: () => void;
-  sendQuery: (query: string) => Promise<void>;
+  sendQuery: (query: string, source?: QuerySource) => Promise<void>;
   rejectSuggestions: () => Promise<void>;
   chooseOption: (option: string) => Promise<void>;
   chooseBot: (botChoice: string) => Promise<void>;
@@ -69,7 +69,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   reset: () =>
     set({ symptomId: null, answerPath: [], step: null, messages: [], error: null, rated: false }),
 
-  sendQuery: (query: string) => runStep(set, query, () => startChat(query)),
+  sendQuery: (query: string, source: QuerySource = "typed") =>
+    // A photo's text can be long: show a short preview in the conversation, send all of it.
+    runStep(
+      set,
+      source === "photo" ? `📷 ${query.length > 90 ? `${query.slice(0, 90).trimEnd()}…` : query}` : query,
+      () => startChat(query, source)
+    ),
 
   // "None of these" on a suggestion list. The backend ignores which guide id is sent
   // here; it just routes the person to the bot picker.
