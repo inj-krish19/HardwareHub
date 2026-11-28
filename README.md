@@ -60,6 +60,14 @@ through `lib/api.ts` and checks every response with the Zod schemas in `lib/vali
   offers **Prepare a summary for a technician**: a sheet with the questions asked, the answers given and
   what the guide found, ready to copy or save as a text file. The two optional fields on that sheet
   (device, other details) are typed in the browser and never sent anywhere.
+- **Photos of error screens and part labels.** The camera button next to the message box opens a picture,
+  reads its text **in the browser** with tesseract.js (nothing is uploaded or stored; the picture is shrunk and redrawn first,
+  which also removes camera metadata), shows the text so the person can fix or trim it, and only then sends it to the chat as
+  `source: "photo"`. The reader is loaded only when someone attaches a picture. It needs its files served from your own site:
+  `npm install tesseract.js @tesseract.js-data/eng`, then add to `package.json` scripts
+  `"copy-ocr": "node scripts/copy-ocr-assets.mjs"`, `"predev": "npm run copy-ocr"` and `"prebuild": "npm run copy-ocr"`,
+  and add `/public/ocr/` to `.gitignore` (about 17 MB, copied at build time, not committed). Set `NEXT_PUBLIC_OCR_BASE` only if you host them elsewhere.
+  Without the files the camera button shows "I could not read that picture here" and everything else keeps working.
 - The newest message scrolls into view, and a safety note about switching off and unplugging stays visible.
 
 ## Admin panel
@@ -78,7 +86,7 @@ Open `/admin/login` and enter the `ADMIN_ID` and `ADMIN_SECRET` from the backend
 ```
 frontend/
   app/            routes (see Pages), layout, sitemap, robots, global styles
-  components/     ChatWidget, TechnicianReport, GuideTree, SiteHeader, ProductMedia, CompareClient, glossary tooltips ...
+  components/     ChatWidget, PhotoReader, TechnicianReport, GuideTree, SiteHeader, ProductMedia, CompareClient, glossary tooltips ...
     admin/        shared pieces of the admin pages
   lib/
     api.ts            chat calls (validated with Zod)
@@ -88,6 +96,7 @@ frontend/
     store/chatStore.ts  chat state
     validations/      Zod schemas
     reportText.ts     builds the technician summary text
+    ocr.ts            reads the text in a picture, in the browser
     theme.tsx         light and dark mode
     glossary.ts       jargon definitions for tooltips
 ```

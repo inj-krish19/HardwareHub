@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FiMessageCircle, FiSend, FiX, FiRefreshCw, FiCpu, FiMaximize2, FiMinimize2, FiLayers, FiCompass, FiThumbsUp, FiThumbsDown, FiAlertTriangle } from "react-icons/fi";
+import PhotoReader from "@/components/PhotoReader";
 import TechnicianReport from "@/components/TechnicianReport";
 import { useChatStore } from "@/lib/store/chatStore";
 import { chatStartSchema } from "@/lib/validations/chat";
@@ -304,6 +305,7 @@ export default function ChatWidget() {
                                 placeholder="Describe your PC issue..."
                                 className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                             />
+                            <PhotoReader onUse={(text) => sendQuery(text, "photo")} disabled={isLoading} />
                             <button
                                 type="submit"
                                 disabled={isLoading || !input.trim()}
